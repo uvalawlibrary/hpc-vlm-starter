@@ -296,6 +296,8 @@ Compare to commercial API pricing: 100,000 images through a cloud VLM API would 
 
 Developed by Loren S. Moulds (University of Virginia Law Library) and Angela Boakye Danquah (Data Analytics Center, UVA), from production pipelines for the a large-scale archival digitization project and the a court records digitization project. Originally published alongside the [Computational History](https://computationalhistory.substack.com) Substack.
 
+This work builds on a growing ecosystem of AI-assisted archival projects at research universities. We are grateful to the [On the Books: AI-Assisted Collections](https://www.infodocket.com/2025/09/25/news-from-unc-university-libraries-with-new-grant-on-the-books-uses-ai-to-make-historical-records-more-accessible/) initiative at UNC University Libraries, supported by a Mellon Foundation grant, which has demonstrated the power of machine learning for unlocking historical records and increasing access to materials related to historically underrepresented communities.
+
 ## License
 
 MIT
