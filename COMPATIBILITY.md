@@ -77,6 +77,55 @@ If you are at a smaller institution with limited GPU resources, consider:
 
 ---
 
+## When a Laptop Beats the Cluster
+
+If your institutional cluster has older GPUs, insufficient VRAM, or a non-Slurm scheduler — or if your collection is relatively small — a modern laptop may genuinely be the better choice.
+
+Apple Silicon Macs (M4, M4 Max, M5, and later) use a unified memory architecture where CPU and GPU share the same memory pool. A MacBook Pro with 64 GB of unified memory can run a 27B model entirely in RAM; 128 GB opens up larger models. There is no separate VRAM constraint. Critically, both [Ollama](https://ollama.com) and [LM Studio](https://lmstudio.ai) — free, easy-to-install local model runners — expose an **OpenAI-compatible API endpoint**, which means `batch_extract.py` works without a single script change. Just point it at `http://localhost:11434/v1/chat/completions` (Ollama) or `http://localhost:1234/v1/chat/completions` (LM Studio) instead of your cluster.
+
+### When local is the right call
+
+- **Collection under ~5,000 images**: Queue wait time on a small cluster likely exceeds local processing time
+- **Incompatible cluster infrastructure**: Older GPUs, wrong scheduler, or no GPU nodes at all
+- **Privacy-sensitive materials**: Data never leaves your machine — no institutional network, no shared storage
+- **Iterating on your prompt**: Much faster to test and refine locally before committing to a cluster run
+- **No HPC allocation yet**: Start processing immediately while paperwork clears
+
+### Rough throughput on Apple Silicon
+
+| Hardware | Model | Approx. Throughput |
+|----------|-------|--------------------|
+| M4 Pro, 48 GB | 7B | ~8–12 images/min |
+| M4 Max, 64 GB | 27B | ~2–4 images/min |
+| M5, 128 GB | 27B | ~4–6 images/min |
+
+At 3 images/minute on a 27B model, 5,000 images completes overnight (~28 hours). For 50,000 images, the cluster becomes the better tool.
+
+### Getting started with Ollama
+
+```bash
+# Install Ollama (Mac/Linux)
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Pull a vision-capable model
+ollama pull qwen2.5vl:7b      # 7B — fast, fits 16 GB+
+ollama pull qwen2.5vl:32b     # 32B — better quality, needs 64 GB+
+
+# Ollama serves on port 11434 by default
+# Point batch_extract.py at it:
+python scripts/batch_extract.py \
+    --input-dir ./my_images/ \
+    --output-dir ./outputs/ \
+    --endpoint http://localhost:11434/v1/chat/completions \
+    --model qwen2.5vl:7b \
+    --prompt-file prompts/my_prompt.txt \
+    --workers 2
+```
+
+Keep `--workers` low (2–4) on local runs — you are the only user, and the model is already saturating your hardware.
+
+---
+
 ## Quick Checklist
 
 Before starting setup, verify:
