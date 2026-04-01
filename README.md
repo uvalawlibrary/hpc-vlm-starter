@@ -20,6 +20,8 @@ You write the prompt. The pipeline handles everything else.
 
 > **Using Claude Code?** This repository includes a `CLAUDE.md` file that instructs Claude Code to act as a setup guide for your specific project and infrastructure. Open the repo in [Claude Code](https://claude.ai/code), and it will ask about your collection, assess your cluster, walk you through `config.sh`, and help you write your extraction prompt.
 
+> **Using Gemini or another AI assistant?** This repository includes an agent workflow at `.agents/workflows/setup.md`. Tell your assistant to **"run the setup workflow"** and it will guide you through the same onboarding process — assessing your infrastructure, configuring the pipeline, and drafting your extraction prompt.
+
 ---
 
 ## Prerequisites
