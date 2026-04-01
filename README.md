@@ -175,26 +175,35 @@ Everything else is generic infrastructure.
 ### Architecture
 
 ```
-┌──────────────┐     ┌──────────────────┐     ┌─────────────┐
-│  chunk_       │     │  start_server    │     │  run_batch   │
-│  dataset.sh   │────>│  .slurm          │────>│  .slurm      │──┐
-│  (one-time)   │     │  (GPU node)      │     │  (CPU node)  │  │
-└──────────────┘     │                  │     └─────────────┘  │
-                      │  vLLM serves     │            │         │
-                      │  your model on   │<───────────┘         │
-                      │  port 8000       │   HTTP API calls     │
-                      └──────────────────┘            │         │
-                                                      v         │
-                                               ┌─────────────┐  │
-                                               │  JSON output │  │
-                                               │  per image   │  │
-                                               └─────────────┘  │
-                                                      │         │
-                                                      v         │
-                                               ┌─────────────┐  │
-                                               │ retry_failed │<─┘
-                                               │ .slurm       │
-                                               └─────────────┘
+ SETUP (one-time)                 PIPELINE (automated)
+ ================                 ====================
+
+ ┌────────────────┐
+ │ chunk_dataset  │
+ │ .sh            │    ┌────────────────────┐
+ │                │    │ start_server.slurm │
+ │ Splits images  │    │                    │
+ │ into batch_01, │    │ vLLM serves model  │
+ │ batch_02, ...  │    │ on GPU node        │
+ └────────────────┘    └─────────┬──────────┘
+                                 │ listens on port 8000
+                                 │
+                       ┌─────────▼──────────┐
+                       │ run_batch.slurm    │
+                       │                    │◄──── batch_01, batch_02, ...
+                       │ Sends images to    │      (chained via Slurm
+                       │ server via HTTP,   │       dependencies)
+                       │ saves JSON output  │
+                       └─────────┬──────────┘
+                                 │
+                                 │ failures logged
+                                 │
+                       ┌─────────▼──────────┐
+                       │ retry_failed.slurm │
+                       │                    │
+                       │ Aggregates failure │
+                       │ logs, re-processes │
+                       └────────────────────┘
 ```
 
 1. **`chunk_dataset.sh`** splits your images into batch directories (symlinks, no copying)
